@@ -1,0 +1,3080 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================================================
+   KN DETAILING STUDIO — MOBILE-FIRST DESIGN SYSTEM
+   The base layer styles the PHONE product (320px and up) — it is the master.
+   Desktop is an adaptation: desktop rules live in @media (min-width: 900px).
+   ========================================================================== */
+
+:root {
+  --ink: #11110f;
+  --paper: #efede8;
+  --muted: #6c6962;
+  --muted-soft: #8b8880;
+  --line: rgba(17, 17, 15, 0.16);
+  --line-strong: rgba(17, 17, 15, 0.34);
+  /* Акцентная палитра. Значения по умолчанию совпадают с site.config.ts —
+     там они и переопределяются под нового клиента (см. theme в конфиге). */
+  --accent: #e8b33c;
+  --accent-ink: #11110f;
+  --accent-stars: #d9a12b;
+  --accent-check: #c08a1e;
+  --accent-muted: #6d4c0e;
+  --accent-strong: #33230a;
+  --dark-line: rgba(239, 237, 232, 0.19);
+  --serif: "DM Serif Display", Georgia, serif;
+  --sans: "Manrope", Arial, sans-serif;
+
+  --gutter: 20px;
+  --header-h: 58px;
+  --section-y: 64px;
+  --tap: 44px;
+  --radius: 2px;
+  --sheet-radius: 22px;
+}
+
+@media (max-width: 359px) {
+  :root {
+    --gutter: 16px;
+    --header-h: 56px;
+    --section-y: 52px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ink);
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 12px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  /* no global overflow-x hack: overflow is fixed at its source */
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+picture {
+  display: block;
+  max-width: 100%;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* keeps anchored sections clear of the fixed header */
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 14px);
+}
+
+em {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.hero :focus-visible,
+.final-cta :focus-visible,
+.site-header :focus-visible,
+.on-dark :focus-visible {
+  outline-color: var(--accent);
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------------------------------------------------------------- typography */
+
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.section-heading h2,
+.split-copy h2,
+.process-intro h2,
+.final-content h2,
+.booking-modal h2,
+.success-state h2,
+.work-head h2,
+.reviews-head h2 {
+  margin: 0;
+  font-size: clamp(31px, 9vw, 44px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.048em;
+  text-wrap: balance;
+}
+
+.section-heading p,
+.split-copy p {
+  margin: 16px 0 0;
+  max-width: 46ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ controls */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: var(--radius);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+  transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.button--wide {
+  width: 100%;
+}
+
+.button--accent {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.button--accent:active {
+  transform: scale(0.98);
+}
+
+.button--outline {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+}
+
+/* secondary CTA placed on top of photography */
+.button--ghost-light {
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: rgba(10, 10, 9, 0.28);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+
+.button--ghost-light:active {
+  background: rgba(10, 10, 9, 0.5);
+}
+
+.button--small {
+  min-height: var(--tap);
+  padding: 0 14px;
+  font-size: 10px;
+  letter-spacing: 0.09em;
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid var(--line);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.icon-button:disabled {
+  opacity: 0.35;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: var(--tap);
+  padding: 10px 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.text-link svg {
+  transition: transform 0.18s ease;
+}
+
+/* --------------------------------------------------------------- site header */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: calc(var(--header-h) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--gutter) 0;
+  color: #fff;
+  background: rgba(17, 17, 15, 0.97);
+  border-bottom: 1px solid rgba(239, 237, 232, 0.14);
+}
+
+.site-header--scrolled {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+}
+
+.brand {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--tap);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.07em;
+}
+
+.brand small {
+  margin-top: 5px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* the mobile booking CTA lives in the header — never pinned to the viewport */
+.header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--tap);
+  padding: 0 14px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.menu-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+/* Ссылка «Перейти к содержанию»: не видна мышью, появляется по Tab
+   (правило skill: skip-links). */
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: 8px;
+  left: 16px;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.header-phone,
+.nav-links,
+.nav-scrim {
+  display: none;
+}
+
+.nav-links--open {
+  position: fixed;
+  z-index: 41;
+  top: calc(var(--header-h) + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6px var(--gutter) calc(18px + env(safe-area-inset-bottom));
+  background: rgba(17, 17, 15, 0.99);
+  border-bottom: 1px solid rgba(239, 237, 232, 0.16);
+  animation: navDrop 0.2s ease both;
+}
+
+.nav-links--open a {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nav-links--open a:last-of-type {
+  border-bottom: 0;
+}
+
+.nav-links--open a.nav-link--active {
+  color: var(--accent);
+}
+
+.nav-contact {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.nav-contact a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  border-bottom: 0;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-contact svg {
+  flex: none;
+}
+
+.nav-scrim--open {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.2s ease both;
+}
+
+/* ---------------------------------------------------------------------- hero */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100svh;
+  overflow: clip;
+  background: #1b1b19;
+  color: #fff;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% 52%;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+      180deg,
+      rgba(8, 8, 7, 0.84) 0%,
+      rgba(8, 8, 7, 0.32) 24%,
+      rgba(8, 8, 7, 0.52) 56%,
+      rgba(8, 8, 7, 0.93) 100%
+    ),
+    linear-gradient(90deg, rgba(8, 8, 7, 0.55), rgba(8, 8, 7, 0) 72%);
+}
+
+.hero-content {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: calc(var(--header-h) + env(safe-area-inset-top) + 24px) var(--gutter) 22px;
+  animation: heroIn 0.65s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.hero-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 20px 0 0;
+  max-width: 14ch;
+  font-size: clamp(40px, 12.4vw, 60px);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.048em;
+  text-wrap: balance;
+}
+
+.hero-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.hero-bottom p {
+  margin: 0;
+  max-width: 32ch;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.hero-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-meta span {
+  display: block;
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10.5px;
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.hero-meta strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--accent);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.hero-scroll {
+  display: none;
+}
+
+.scroll-line {
+  width: 54px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* ----------------------------------------------------------------- trust bar */
+
+.trust-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px 14px;
+  padding: 22px var(--gutter);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.trust-bar .eyebrow {
+  grid-column: 1 / -1;
+  color: var(--accent);
+}
+
+.trust-item {
+  display: block;
+  min-width: 0;
+  color: #bab8b1;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ sections */
+
+.section {
+  padding: var(--section-y) 0;
+}
+
+.section-heading {
+  max-width: 620px;
+  margin-bottom: 28px;
+}
+
+.section-heading .eyebrow {
+  margin-bottom: 13px;
+  color: var(--muted-soft);
+}
+
+/* ------------------------------------------------------------------ services */
+
+.services-section {
+  background: var(--paper);
+}
+
+.services-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.service-card {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.service-card__button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+}
+
+.service-image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #d6d1c9;
+}
+
+.service-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-no {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 10px;
+  background: rgba(17, 17, 15, 0.74);
+  color: #fff;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+
+.service-arrow {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  background: var(--accent);
+  color: var(--ink);
+  transition: transform 0.24s ease;
+}
+
+.service-card--open .service-arrow {
+  transform: rotate(45deg);
+}
+
+.service-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 14px 12px;
+}
+
+.service-meta h3 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.03em;
+}
+
+.service-meta p {
+  margin: 4px 0 0;
+  color: var(--muted-soft);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.service-meta strong {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.service-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  /* `min-height: 0` is what actually lets a grid row collapse. Without it the
+     row keeps its content height and the panel never closes cleanly. */
+  min-height: 0;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.service-detail > div {
+  overflow: hidden;
+  /* Same reason as above: without an explicit minimum the inner box refuses to
+     shrink and the collapsed state still reserves space. */
+  min-height: 0;
+}
+
+.service-card--open .service-detail {
+  grid-template-rows: 1fr;
+}
+
+.service-detail-inner {
+  padding: 0 14px;
+}
+
+.service-card--open .service-detail-inner {
+  padding-bottom: 14px;
+}
+
+.service-detail p {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.service-detail .text-link {
+  margin-top: 8px;
+  font-size: 10.5px;
+}
+
+/* --------------------------------------------------------------- split block */
+
+.split-feature {
+  display: grid;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.split-image {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #2a2a27;
+}
+
+.split-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.15);
+}
+
+.split-copy {
+  padding: 38px var(--gutter) 44px;
+}
+
+.split-copy .eyebrow {
+  margin-bottom: 15px;
+  color: var(--accent);
+}
+
+.split-copy p {
+  color: #a9a7a0;
+}
+
+.feature-list {
+  display: grid;
+  gap: 14px;
+  margin: 24px 0 26px;
+}
+
+.feature-list div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--paper);
+  font-size: 14px;
+}
+
+.feature-list svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.split-copy .text-link {
+  color: var(--paper);
+}
+
+/* ---------------------------------------------------------------- portfolio */
+
+.work-section {
+  background: #171715;
+  color: var(--paper);
+}
+
+.work-head {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.work-head .section-heading {
+  margin-bottom: 0;
+}
+
+.work-head .section-heading .eyebrow {
+  color: rgba(239, 237, 232, 0.6);
+}
+
+.work-head .text-link {
+  justify-self: start;
+  color: var(--paper);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.work-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #262623;
+}
+
+.work-card--lead {
+  grid-column: 1 / -1;
+  aspect-ratio: 4 / 5;
+}
+
+.work-card--wide {
+  grid-column: 1 / -1;
+  aspect-ratio: 4 / 3;
+}
+
+.work-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.82) saturate(0.85);
+}
+
+.work-card-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  gap: 2px;
+  padding: 34px 14px 14px;
+  background: linear-gradient(180deg, rgba(10, 10, 9, 0) 0%, rgba(10, 10, 9, 0.9) 62%);
+  color: #fff;
+}
+
+.work-card-overlay span {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.work-card-overlay small {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.work-card-overlay strong {
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ packages */
+
+.packages-section {
+  background: var(--paper);
+}
+
+.packages-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.package-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px 22px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.package-card--featured {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.package-card--featured .eyebrow,
+.package-card--featured .package-price {
+  color: var(--accent);
+}
+
+/* The featured card sits on --ink, so its outline button needs light ink and a
+   light border, otherwise dark-on-dark makes it disappear entirely. */
+.package-card--featured .button--outline {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.package-card--featured .button--outline:hover,
+.package-card--featured .button--outline:active {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.package-badge {
+  align-self: flex-start;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.package-card h3 {
+  margin: 14px 0 4px;
+  font-size: 25px;
+  letter-spacing: -0.045em;
+}
+
+.package-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.package-card--featured > p,
+.package-card--featured li {
+  color: rgba(239, 237, 232, 0.74);
+}
+
+.package-price {
+  margin: 20px 0 18px;
+  font-family: var(--serif);
+  font-size: 28px;
+}
+
+.package-card ul {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.package-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.package-card li svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent-check);
+}
+
+.package-card--featured li svg {
+  color: var(--accent);
+}
+
+.package-card .button {
+  margin-top: auto;
+}
+
+/* ------------------------------------------------------------------- reviews */
+
+.reviews-section {
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.reviews-head {
+  margin-bottom: 24px;
+}
+
+.reviews-head .eyebrow {
+  margin-bottom: 13px;
+  color: var(--muted-soft);
+}
+
+.reviews-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.reviews-rating .review-stars {
+  color: var(--accent-stars);
+}
+
+.reviews-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.review-stars {
+  display: flex;
+  gap: 3px;
+  color: var(--accent-stars);
+}
+
+.review-card blockquote {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.review-author {
+  display: grid;
+  gap: 2px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted-soft);
+  font-size: 12.5px;
+}
+
+.review-author strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+/* ------------------------------------------------------------------- process */
+
+.process-band {
+  padding: var(--section-y) 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.process-intro .eyebrow {
+  color: var(--accent-muted);
+}
+
+.process-intro h2 {
+  margin-top: 13px;
+}
+
+.process-intro p {
+  margin: 15px 0 0;
+  max-width: 34ch;
+  color: var(--accent-strong);
+  font-size: 14.5px;
+}
+
+.process-steps {
+  margin-top: 24px;
+  border-top: 1px solid rgba(17, 17, 15, 0.28);
+}
+
+.process-step {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(17, 17, 15, 0.28);
+}
+
+.process-step span {
+  color: var(--accent-muted);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.process-step strong {
+  display: block;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.process-step p {
+  margin: 5px 0 0;
+  color: var(--accent-strong);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------- brands */
+
+.brands-section {
+  background: var(--paper);
+}
+
+.brands-layout {
+  display: grid;
+  gap: 26px;
+}
+
+.brands-layout .section-heading {
+  margin-bottom: 0;
+}
+
+.brands-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+
+.brands-list span {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  color: #6e6b64;
+  font-family: var(--serif);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------------- final cta */
+
+.final-cta {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: 470px;
+  overflow: clip;
+  color: #fff;
+}
+
+.final-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+}
+
+.final-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 46% 42%;
+}
+
+.final-cta-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 7, 0.34) 0%,
+    rgba(8, 8, 7, 0.56) 44%,
+    rgba(8, 8, 7, 0.93) 100%
+  );
+}
+
+.final-content {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 32px var(--gutter) 36px;
+}
+
+.final-content .eyebrow {
+  margin-bottom: 13px;
+  color: var(--accent);
+}
+
+.final-content h2 {
+  margin-bottom: 20px;
+}
+
+.final-content .button {
+  width: 100%;
+}
+
+/* -------------------------------------------------------------------- footer */
+
+.footer {
+  padding: 40px var(--gutter) calc(26px + env(safe-area-inset-bottom));
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.footer-top {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 28px;
+}
+
+.footer-top .brand {
+  font-size: 26px;
+}
+
+.footer-top p {
+  margin: 0;
+  color: #a9a7a0;
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.footer-cta {
+  display: grid;
+  gap: 4px;
+  color: #8f8d86;
+  font-size: 12.5px;
+}
+
+.footer-cta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.footer-bottom {
+  display: grid;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--dark-line);
+  color: #8f8d86;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.footer-bottom > div {
+  display: grid;
+  gap: 4px;
+}
+
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  color: var(--paper);
+}
+
+/* ---------------------------------------------------------- booking sheet UX */
+
+.modal-backdrop {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--vv-top, 0px);
+  height: var(--vvh, 100dvh);
+  z-index: 60;
+  display: grid;
+  align-items: end;
+  background: rgba(0, 0, 0, 0.62);
+  animation: fadeIn 0.18s ease both;
+}
+
+.booking-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: min(94%, 920px);
+  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.4);
+  animation: sheetUp 0.28s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.sheet-grab {
+  padding: 10px 0 2px;
+  touch-action: none;
+}
+
+.sheet-grab i {
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(17, 17, 15, 0.22);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px var(--gutter) 0;
+}
+
+.modal-head .icon-button {
+  flex: none;
+}
+
+.modal-steps {
+  display: grid;
+  gap: 12px;
+  padding: 14px var(--gutter) 0;
+}
+
+.modal-head-label {
+  color: var(--muted-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted-soft);
+}
+
+.modal-top .eyebrow {
+  color: inherit;
+}
+
+.step-count {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.booking-modal h2 {
+  font-size: clamp(27px, 8.2vw, 38px);
+  line-height: 1;
+}
+
+.progress {
+  height: 3px;
+  background: #d3cfc7;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transition: width 0.28s ease;
+}
+
+.modal-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px var(--gutter) 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.step-hint {
+  margin: 0 0 6px;
+  color: var(--muted-soft);
+  font-size: 12.5px;
+}
+
+.modal-foot {
+  display: grid;
+  gap: 10px;
+  padding: 12px var(--gutter) 16px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.modal-foot--split {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.modal-foot .button {
+  white-space: nowrap;
+}
+
+.modal-foot--split .button--outline {
+  padding: 0 16px;
+  gap: 6px;
+}
+
+.form-lead {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  width: 100%;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  font-size: 14.5px;
+  text-align: left;
+}
+
+.choice svg {
+  flex: none;
+  opacity: 0.5;
+}
+
+.choice.selected {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.choice.selected svg {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.input-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: block;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select,
+.field textarea {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  /* 16px stops iOS Safari from zooming the layout when a field is focused */
+  font-size: 16px;
+  outline: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(17, 17, 15, 0.08);
+}
+
+.field--invalid input,
+.field--invalid select {
+  border-color: #b3261e;
+}
+
+/* Сводка ошибок формы записи: появляется над шагами, если проверка не прошла.
+   На неё переводится фокус, каждая строка — ссылка на своё поле
+   (правило skill: focusable error summary + ошибки должны объявляться). */
+.form-errors {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #b3261e;
+  background: #fdf4f3;
+  color: #7f1a15;
+}
+
+.form-errors:focus {
+  outline: 2px solid #b3261e;
+  outline-offset: 2px;
+}
+
+.form-errors h3 {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.form-errors ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.form-errors a {
+  color: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: #b3261e;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.contact-pill {
+  min-height: var(--tap);
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.contact-pill.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.booking-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.booking-note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.recap {
+  display: grid;
+  gap: 11px;
+  margin: 4px 0 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: rgba(17, 17, 15, 0.04);
+}
+
+.recap-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 13.5px;
+}
+
+.recap-row > span {
+  color: var(--muted-soft);
+}
+
+.recap-row > b {
+  font-weight: 700;
+  text-align: right;
+}
+
+.success-state {
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  padding: 4px var(--gutter) 22px;
+  text-align: center;
+}
+
+.success-mark {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.success-state h2 {
+  margin-top: 6px;
+}
+
+.success-state p {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.success-state .button {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ------------------------------------------------------------- keyframe base */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   DESKTOP ADAPTATION (>= 900px)
+   The phone product is the master; this block only re-composes it for big screens.
+   ========================================================================== */
+
+@media (min-width: 900px) {
+  :root {
+    --gutter: 38px;
+    --header-h: 74px;
+    --section-y: 130px;
+  }
+
+  body {
+    font-size: 16px;
+  }
+
+  .section-heading h2,
+  .split-copy h2,
+  .process-intro h2,
+  .final-content h2,
+  .booking-modal h2,
+  .success-state h2,
+  .work-head h2,
+  .reviews-head h2 {
+    font-size: clamp(48px, 7vw, 104px);
+    line-height: 0.88;
+    letter-spacing: -0.075em;
+  }
+
+  .section-heading {
+    margin-bottom: 56px;
+  }
+
+  .section-heading p,
+  .split-copy p {
+    margin-top: 24px;
+    font-size: 14px;
+  }
+
+  /* header */
+  .site-header {
+    gap: 24px;
+    padding: env(safe-area-inset-top) var(--gutter) 0;
+    background: rgba(17, 17, 15, 0.94);
+    backdrop-filter: blur(14px);
+  }
+
+  .brand {
+    min-height: auto;
+    font-size: 28px;
+    letter-spacing: -0.08em;
+  }
+
+  .header-phone {
+    display: inline;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+  }
+
+  .header-cta {
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 9.5px;
+  }
+
+  .menu-toggle,
+  .nav-scrim--open {
+    display: none;
+  }
+
+  .nav-links {
+    display: flex;
+    margin-left: auto;
+    gap: 26px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    opacity: 0.72;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    opacity: 1;
+  }
+
+  /* Текущий раздел в меню (правило skill: nav-state-active). Подчёркивание
+     вместо смены насыщенности — чтобы меню не дёргалось по ширине. */
+  .nav-links a.nav-link--active {
+    opacity: 1;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .nav-contact {
+    display: none;
+  }
+
+  /* hero */
+  .hero-media img {
+    object-position: 50% 50%;
+    animation: heroZoom 16s ease-out both;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0.16) 70%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.62), transparent 50%);
+  }
+
+  .hero-content {
+    padding: 132px 0 56px;
+  }
+
+  .hero-kicker {
+    justify-content: space-between;
+    gap: 20px;
+    font-size: 10px;
+  }
+
+  .hero h1 {
+    max-width: 760px;
+    margin: 50px 0 50px;
+    font-size: clamp(60px, 10vw, 156px);
+    line-height: 0.86;
+    letter-spacing: -0.08em;
+  }
+
+  .hero-bottom {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 0;
+  }
+
+  .hero-bottom p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .hero-actions {
+    display: block;
+    flex: none;
+  }
+
+  .hero-meta {
+    display: none;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    right: 38px;
+    bottom: 60px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 9px;
+    letter-spacing: 0.13em;
+    opacity: 0.7;
+    transform: rotate(90deg);
+    transform-origin: right bottom;
+  }
+
+  /* trust bar */
+  .trust-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 22px var(--gutter);
+  }
+
+  .trust-bar .eyebrow {
+    grid-column: auto;
+  }
+
+  .trust-item {
+    font-size: 10px;
+  }
+
+  /* services */
+  .services-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .service-card {
+    border: 0;
+    background: transparent;
+  }
+
+  .service-image {
+    aspect-ratio: 0.77;
+  }
+
+  .service-image img {
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+  }
+
+  .service-card:hover .service-image img,
+  .service-card:focus-within .service-image img {
+    transform: scale(1.06);
+    filter: saturate(1.15);
+  }
+
+  .service-arrow {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+    width: 40px;
+    height: 40px;
+    opacity: 0;
+    transform: translate(-8px, 8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .service-card:hover .service-arrow,
+  .service-card:focus-within .service-arrow,
+  .service-card--open .service-arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  .service-meta {
+    padding: 16px 0 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .service-meta h3 {
+    font-size: 20px;
+  }
+
+  .service-detail-inner {
+    padding: 0;
+  }
+
+  .service-detail p {
+    padding-top: 12px;
+    font-size: 12px;
+  }
+
+  .service-detail .text-link {
+    font-size: 10px;
+  }
+
+  /* split feature */
+  .split-feature {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+
+  .split-image {
+    aspect-ratio: auto;
+    min-height: 620px;
+  }
+
+  .split-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 90px clamp(32px, 8vw, 130px);
+  }
+
+  .feature-list {
+    margin: 34px 0 44px;
+  }
+
+  .feature-list div {
+    font-size: 12px;
+  }
+
+  /* portfolio */
+  .work-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 44px;
+  }
+
+  .work-grid {
+    grid-template-columns: 1.1fr 0.85fr 1fr;
+    grid-template-rows: 290px 210px;
+    gap: 14px;
+  }
+
+  .work-card,
+  .work-card--lead,
+  .work-card--wide {
+    grid-column: auto;
+    aspect-ratio: auto;
+  }
+
+  .work-card--0 {
+    grid-row: span 2;
+  }
+
+  .work-card--1 {
+    grid-column: span 2;
+  }
+
+  .work-card img {
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+  }
+
+  .work-card:hover img {
+    transform: scale(1.05);
+    filter: saturate(1.1);
+  }
+
+  .work-card-overlay {
+    inset: auto 18px 18px;
+    padding: 0;
+    background: none;
+  }
+
+  .work-card-overlay span {
+    font-size: 22px;
+    letter-spacing: -0.05em;
+  }
+
+  /* packages */
+  .packages-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .package-card {
+    position: relative;
+    min-height: 470px;
+    padding: 34px 28px 30px;
+    border-color: var(--line);
+    background: transparent;
+  }
+
+  .package-card--featured {
+    /* Must keep an opaque dark fill: the generic .package-card rule above
+       sets `background: transparent` and would otherwise win the cascade,
+       leaving the lime price/badge text unreadable on the light page. */
+    background: var(--ink);
+    transform: translateY(-18px);
+  }
+
+  .package-badge {
+    position: absolute;
+    top: 17px;
+    right: 17px;
+    margin: 0;
+  }
+
+  .package-card h3 {
+    margin: 52px 0 5px;
+    font-size: 27px;
+  }
+
+  .package-price {
+    margin: 34px 0 26px;
+    font-size: 30px;
+  }
+
+  .package-card ul {
+    font-size: 11px;
+  }
+
+  /* reviews */
+  .reviews-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .review-card blockquote {
+    font-size: 13.5px;
+  }
+
+  /* process */
+  .process-band .container {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 100px;
+  }
+
+  .process-intro p {
+    font-size: 13px;
+  }
+
+  .process-steps {
+    margin-top: 0;
+  }
+
+  .process-step {
+    grid-template-columns: 60px minmax(0, 1fr);
+    align-items: center;
+    gap: 15px;
+    min-height: 68px;
+    padding: 0;
+  }
+
+  .process-step strong {
+    font-size: 17px;
+    letter-spacing: -0.03em;
+  }
+
+  .process-step p {
+    display: none;
+  }
+
+  /* brands */
+  .brands-layout {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 100px;
+  }
+
+  .brands-list span {
+    padding: 20px 0;
+    font-size: 24px;
+  }
+
+  /* final cta */
+  .final-cta {
+    align-items: center;
+    min-height: 680px;
+  }
+
+  .final-cta-overlay {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1));
+  }
+
+  .final-media img {
+    object-position: 50% 50%;
+  }
+
+  .final-content {
+    padding: 60px 0;
+  }
+
+  .final-content .eyebrow {
+    margin-bottom: 28px;
+  }
+
+  .final-content h2 {
+    margin-bottom: 36px;
+  }
+
+  .final-content .button {
+    width: auto;
+  }
+
+  /* footer */
+  .footer {
+    padding: 55px var(--gutter) 25px;
+  }
+
+  .footer-top {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 30px;
+    padding-bottom: 80px;
+  }
+
+  .footer-top .brand {
+    font-size: 28px;
+  }
+
+  .footer-top p {
+    font-size: 24px;
+    line-height: 1.05;
+  }
+
+  .footer-cta {
+    justify-items: end;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .footer-cta a {
+    min-height: auto;
+    font-size: 11px;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 18px;
+    font-size: 9px;
+  }
+
+  .footer-bottom > div {
+    display: flex;
+    gap: 25px;
+  }
+
+  .footer-social {
+    flex-wrap: nowrap;
+    gap: 17px;
+  }
+
+  .footer-social a {
+    min-height: auto;
+  }
+
+  /* booking dialog */
+  .modal-backdrop {
+    align-items: center;
+    justify-items: center;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .booking-modal {
+    width: min(560px, 100%);
+    max-height: min(760px, 92vh);
+    border-radius: 0;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+    animation: modalUp 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .sheet-grab {
+    display: none;
+  }
+
+  .modal-head {
+    padding: 22px var(--gutter) 0;
+    justify-content: flex-end;
+  }
+
+  .modal-steps {
+    padding-top: 18px;
+  }
+
+  .booking-modal h2 {
+    font-size: 62px;
+  }
+
+  .modal-body {
+    padding: 24px var(--gutter) 10px;
+  }
+
+  .modal-foot {
+    padding: 0 var(--gutter) 30px;
+    border-top: 0;
+  }
+
+  .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .choice {
+    min-height: 52px;
+    font-size: 12.5px;
+  }
+
+  .input-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .input-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field input,
+  .field select {
+    min-height: 50px;
+    font-size: 15px;
+  }
+
+  .field > span {
+    font-size: 10px;
+  }
+
+  .success-state {
+    padding: 6px var(--gutter) 30px;
+  }
+
+  .success-state .button {
+    width: auto;
+    min-width: 240px;
+  }
+
+  .booking-note {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  @keyframes heroZoom {
+    from {
+      transform: scale(1.05);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}
+
+/* landscape phones: keep the promise + CTA inside a very short viewport */
+@media (max-height: 560px) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-content {
+    padding-top: calc(var(--header-h) + 18px);
+    padding-bottom: 18px;
+  }
+
+  .hero h1 {
+    margin-top: 12px;
+    max-width: 22ch;
+    font-size: clamp(30px, 4.6vw, 44px);
+  }
+
+  .hero-bottom {
+    margin-top: 14px;
+  }
+
+  .hero-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 460px;
+  }
+
+  .hero-meta {
+    display: none;
+  }
+
+  .final-cta {
+    min-height: 320px;
+  }
+}
+
+@keyframes heroZoom {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ============================================================================
+   MOTION
+   Every animation here animates only `transform` / `opacity` so the browser
+   keeps it on the compositor. No width/height/top/left/box-shadow keyframes,
+   which would force layout or paint each frame and drop the frame rate.
+   All of it is neutralised under `prefers-reduced-motion` at the bottom.
+   ========================================================================== */
+
+/* --- shared easing: slow start, decisive middle, soft landing --------------- */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 0.18s;
+  --dur-base: 0.32s;
+  --dur-slow: 0.62s;
+}
+
+.button[disabled] {
+  cursor: default;
+  opacity: 0.85;
+  transform: none;
+}
+
+.button--accent[disabled] {
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ contacts */
+
+.contacts-section {
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+/* Phone: copy first, map underneath. Desktop: two columns with the map
+   sticky-ish beside the text. */
+.contacts-layout {
+  display: grid;
+  gap: 28px;
+}
+
+.contacts-copy h2 {
+  margin: 12px 0 14px;
+  font-size: clamp(31px, 9vw, 44px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.048em;
+  text-wrap: balance;
+}
+
+.contacts-copy > p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.contacts-list {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0 24px;
+}
+
+.contacts-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.contacts-list__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+
+.contacts-list strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-soft);
+}
+
+.contacts-list a {
+  border-bottom: 1px solid var(--line-strong);
+  font-weight: 600;
+}
+
+.contacts-list__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.contact-map {
+  position: relative;
+  display: block;
+  min-height: 260px;
+  border: 1px solid var(--line-strong);
+  background: #d6d1c9;
+  overflow: hidden;
+}
+
+/* Тайловая карта 2ГИС. Тайлы — обычные картинки, поэтому карта не тянет ни
+   сторонний iframe, ни чужой скрипт; сетка позиционируется из компонента так,
+   чтобы метка студии была точно по центру блока. */
+.map-tiles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #e7e3dc;
+}
+
+.map-tiles__grid {
+  position: absolute;
+}
+
+.map-tiles__tile {
+  position: absolute;
+  display: block;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  background: var(--accent);
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.map-credit {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 2;
+  padding: 3px 7px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #4a4a46;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* Shown for the moment before the widget is inserted, and for good if the
+   iframe never loads. */
+.contact-map__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.contact-map__placeholder span {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* A real link, not a button inside the frame: the address stays reachable even
+   if the third-party iframe is blocked. */
+.contact-map__link {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+}
+
+@media (min-width: 900px) {
+  .contacts-layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 48px;
+    align-items: center;
+  }
+
+  .contacts-copy h2 {
+    font-size: clamp(44px, 5vw, 68px);
+  }
+
+  .contact-map {
+    min-height: 460px;
+  }
+}
+
+/* --- package picker ---------------------------------------------------------
+   A grid, not a horizontal rail: with only four options a rail leaves the last
+   one half-clipped with no affordance, and on a phone there is no room to
+   scroll comfortably. A wrapping grid shows every package at once at any width.
+   `min-width: 0` lets a cell shrink so nothing forces the dialog wider.     */
+.pack-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pack-option {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  background: #fff;
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.pack-option-name {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.pack-option-title {
+  font-size: 13px;
+  line-height: 1.3;
+  /* Long package titles must wrap rather than widen the cell. */
+  overflow-wrap: anywhere;
+}
+
+.pack-option-note {
+  font-size: 12px;
+  color: var(--muted-soft);
+}
+
+.pack-option-price {
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.pack-option.selected {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.pack-option.selected .pack-option-name {
+  color: var(--accent);
+}
+
+.pack-option.selected .pack-option-note {
+  color: rgba(239, 237, 232, 0.72);
+}
+
+@media (min-width: 560px) {
+  .pack-picker {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.choice-price {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted-soft);
+  white-space: nowrap;
+}
+
+/* The service name has to be allowed to wrap, otherwise it and the price
+   together force the two-column grid wider than the dialog. */
+.choice > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.choice.selected .choice-price {
+  /* The selected row sits on --ink, so the price must go light, not dark. */
+  color: var(--paper);
+}
+
+.estimate {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--ink);
+  background: #fff;
+}
+
+.estimate--empty {
+  border-color: var(--line);
+  border-style: dashed;
+}
+
+.estimate-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.estimate-head strong {
+  font-family: var(--serif);
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.estimate-lines {
+  display: grid;
+  gap: 6px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.estimate-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.estimate-note {
+  margin: 11px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted-soft);
+}
+
+/* --- scroll reveal ---------------------------------------------------------
+   Elements start offset and faded; `[data-shown]` releases them. The offset is
+   a translate, so nothing reflows. `--d` staggers siblings.                 */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out-expo),
+    transform var(--dur-slow) var(--ease-out-expo);
+  transition-delay: var(--d, 0ms);
+}
+
+.reveal[data-shown] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* --- press feedback: tactile, transform-only ------------------------------ */
+@media (hover: hover) and (pointer: fine) {
+  .button,
+  .choice,
+  .contact-pill,
+  .service-card__button,
+  .package-card .button {
+    transition:
+      transform var(--dur-fast) var(--ease-out-expo),
+      background-color var(--dur-fast) ease,
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease;
+  }
+
+  .button:hover,
+  .choice:hover,
+  .contact-pill:hover,
+  .package-card .button:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .button:active,
+  .choice:active,
+  .contact-pill:active,
+  .service-card__button:active,
+  .package-card .button:active {
+    transform: translate3d(0, 1px, 0) scale(0.985);
+  }
+}
+
+/* --- cards: lift on hover (desktop only) --------------------------------- */
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .service-card,
+  .work-card,
+  .review-card {
+    transition: transform var(--dur-base) var(--ease-out-expo);
+  }
+
+  .service-card:hover,
+  .work-card:hover {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  .review-card:hover {
+    transform: translate3d(0, -4px, 0) rotate(-0.35deg);
+  }
+}
+
+/* --- arrow nudge on links -------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  .text-link svg,
+  .footer-cta a svg,
+  .header-cta svg,
+  .button--accent svg,
+  .button--outline svg {
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  .text-link:hover svg {
+    transform: translate3d(3px, -3px, 0);
+  }
+
+  .footer-cta a:hover svg {
+    transform: translate3d(0, -2px, 0) rotate(-12deg);
+  }
+}
+
+/* --- trust bar: slow marquee on wide screens, static stack on phones ------- */
+/* The static stack is the phone default; the marquee only takes over on wide
+   screens, so a phone never loads a 38s animation it cannot see. */
+.trust-static {
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 900px) {
+  .trust-static {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .trust-marquee {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .trust-marquee {
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+    animation: marquee 38s linear infinite;
+  }
+
+  .trust-marquee-run {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding-right: 28px;
+  }
+
+  .trust-marquee:hover {
+    animation-play-state: paused;
+  }
+}
+
+.dm-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dm-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .trust-bar {
+    overflow: hidden;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* --- doodle boil ----------------------------------------------------------
+   The hand-inked wobble: outlines that never quite land in the same place.
+   Six discrete jumps rather than a smooth tween, which is what makes it read
+   as boiling rather than sliding. Cheap because it is transform-only.       */
+.doodle-boil {
+  animation: boil 0.36s steps(1, end) infinite;
+}
+
+@keyframes boil {
+  0% {
+    transform: translate3d(0.4px, -0.3px, 0) rotate(-0.4deg);
+  }
+  20% {
+    transform: translate3d(-0.5px, 0.4px, 0) rotate(0.5deg);
+  }
+  40% {
+    transform: translate3d(0.3px, 0.5px, 0) rotate(-0.25deg);
+  }
+  60% {
+    transform: translate3d(-0.4px, -0.4px, 0) rotate(0.35deg);
+  }
+  80% {
+    transform: translate3d(0.5px, 0.2px, 0) rotate(-0.5deg);
+  }
+  100% {
+    transform: translate3d(0.4px, -0.3px, 0) rotate(-0.4deg);
+  }
+}
+
+/* Decoration only: on a device that cannot afford it the icon keeps its shape. */
+@media (prefers-reduced-motion: reduce) {
+  .doodle-boil {
+    animation: none;
+  }
+}
+
+/* --- dot-matrix loader ----------------------------------------------------
+   Dots animate only `transform` (scale) and `opacity`; their positions are
+   fixed by the grid, so no layout is recalculated while it runs.             */
+.dm {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  width: 40px;
+}
+
+.dm span {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: scale(0.32);
+  opacity: 0.35;
+  animation: dmPulse 1.15s var(--ease-out-expo) infinite;
+}
+
+@keyframes dmPulse {
+  0%,
+  100% {
+    transform: scale(0.32);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dm span:nth-child(1) { animation-delay: 0ms; }
+.dm span:nth-child(2) { animation-delay: 70ms; }
+.dm span:nth-child(3) { animation-delay: 140ms; }
+.dm span:nth-child(4) { animation-delay: 210ms; }
+.dm span:nth-child(5) { animation-delay: 350ms; }
+.dm span:nth-child(6) { animation-delay: 420ms; }
+.dm span:nth-child(7) { animation-delay: 490ms; }
+.dm span:nth-child(8) { animation-delay: 560ms; }
+.dm span:nth-child(9) { animation-delay: 630ms; }
+.dm span:nth-child(10) { animation-delay: 700ms; }
+.dm span:nth-child(11) { animation-delay: 770ms; }
+.dm span:nth-child(12) { animation-delay: 840ms; }
+.dm span:nth-child(13) { animation-delay: 980ms; }
+.dm span:nth-child(14) { animation-delay: 1050ms; }
+.dm span:nth-child(15) { animation-delay: 1120ms; }
+.dm span:nth-child(16) { animation-delay: 1190ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dm span {
+    animation: none;
+    transform: scale(0.7);
+    opacity: 0.75;
+  }
+}
+
+/* --- notch motif ----------------------------------------------------------
+   A nod to the codenotch idea: a small bite out of the top edge of the
+   featured card, so the "most chosen" tier reads without any text.          */
+@media (min-width: 900px) {
+  .package-card--featured {
+    --notch-w: 26px;
+    --notch-h: 9px;
+    clip-path: polygon(
+      0 0,
+      calc(50% - var(--notch-w) / 2) 0,
+      50% var(--notch-h),
+      calc(50% + var(--notch-w) / 2) 0,
+      100% 0,
+      100% 100%,
+      0 100%
+    );
+  }
+}
+
+/* Numbers that animate must not shift the layout while counting. */
+.stat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   MOBILE
+   Phones are the primary target: 44px minimum hit areas, safe-area insets for
+   notched devices, and nothing allowed to widen the page.
+   ========================================================================== */
+
+/* Every interactive control clears the 44px minimum touch target. */
+@media (max-width: 899px) {
+  .service-card__button,
+  .footer-cta a,
+  .footer-social a,
+  .brands-list span,
+  .text-link,
+  .pack-option,
+  .field select,
+  .field input,
+  .field textarea {
+    min-height: var(--tap);
+  }
+
+  .footer-cta a,
+  .footer-social a,
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Tablet range (560-899px): the booking dialog is still a bottom sheet here,
+   so give the service list two columns and the packages room to breathe. */
+@media (min-width: 560px) and (max-width: 899px) {
+  .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .choice {
+    min-height: 60px;
+  }
+}
+
+/* Respect the notch / home indicator instead of sliding under it. */
+@supports (padding: max(0px)) {
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .modal-backdrop,
+  .booking-modal {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .footer-bottom {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Notched phones in landscape need the side insets respected too. */
+@media (max-width: 899px) and (orientation: landscape) {
+  .container {
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
+}
+
+/* Число колонок приходит из разметки: она считает его от количества услуг,
+   чтобы последний ряд не оставался с пустыми местами (6 услуг → 3 колонки). */
+@media (min-width: 900px) {
+  .services-grid {
+    grid-template-columns: repeat(var(--services-cols, 4), minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+/* Long contact strings and model names must never widen the page. */
+@media (max-width: 899px) {
+  .footer-cta a,
+  .footer-bottom span,
+  .recap-row b,
+  .package-price,
+  .service-meta strong {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 359px) {
+  .package-price {
+    font-size: 25px;
+  }
+
+  .package-card {
+    padding: 20px 16px 18px;
+  }
+
+  .hero-actions .button,
+  .final-content .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

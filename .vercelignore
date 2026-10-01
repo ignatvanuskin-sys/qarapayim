@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.git
+.github
+.manus
+*.log
+install.log
+i3.log
+b2.log
+tsc2.log
+il2.log
+template.json
+MOBILE-QA-REPORT.md
+.env.local
+.vercelignore
