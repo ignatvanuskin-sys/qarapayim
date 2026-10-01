@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { site } from "../site.config";
+import { addDays, buildIcs, formatPhone, humanDate, localDate, phoneDigits, shortDate, slotList } from "../lib/booking";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -307,6 +308,53 @@ const serviceTitleToOption: Record<string, string> = Object.fromEntries(
 const channelLabel = (id: string) => site.booking.channels.find((channel) => channel.id === id)?.label ?? id;
 const channelShort = (id: string) => site.booking.channels.find((channel) => channel.id === id)?.short ?? id;
 
+/* Даты, слоты и телефон живут в client/src/lib/booking.ts — это чистая логика
+   без React и DOM, её проверяет scripts/test-booking.mjs. */
+
+/* Сборка .ics — в lib/booking.ts, здесь осталось только скачивание файла. */
+
+/** Отдаём файл браузеру — без сервера, всё на клиенте. */
+function downloadIcs(name: string, body: string) {
+  const url = URL.createObjectURL(new Blob([body], { type: "text/calendar;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Черновик заявки: человек может закрыть окно и вернуться. */
+const DRAFT_KEY = "qarapayim-booking-draft";
+
+function readDraft(): Partial<BookingForm> | null {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<BookingForm>;
+    return typeof parsed === "object" && parsed ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(form: BookingForm) {
+  try {
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...form, services: form.services.slice(0, 8) }));
+  } catch {
+    /* приватный режим — просто работаем без черновика */
+  }
+}
+
+function clearDraft() {
+  try {
+    window.localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    /* см. выше */
+  }
+}
+
 /* ------------------------------------------------------------------ карта */
 
 /* Карта 2ГИС без iframe.
@@ -453,28 +501,48 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
   const summaryRef = useRef<HTMLDivElement | null>(null);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  /* Текст отправленной заявки: из него собираются кнопки на экране успеха —
+     повторить WhatsApp, положить визит в календарь, скопировать текст. */
+  const [request, setRequest] = useState("");
+  const [copied, setCopied] = useState(false);
   const [dragY, setDragY] = useState(0);
   const dragStart = useRef<number | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const today = localDate(new Date());
+  const slotBounds = site.booking.slots;
 
   useEffect(() => {
     if (!open) return;
     setStep(0);
     setSent(false);
     setSending(false);
+    setSendError("");
+    setCopied(false);
     setErrors({});
     setDragY(0);
     // Pre-select the service the user clicked, so the form never opens empty
     // with the choice they already made somewhere else on the page.
     const preselected = initialService ? serviceTitleToOption[initialService] : undefined;
+    /* Незаконченная заявка с прошлого визита: подставляем, но выбранную на
+       странице услугу она не перебивает. */
+    const draft = readDraft();
     setForm({
       ...emptyForm,
-      services: preselected && serviceNames.includes(preselected) ? [preselected] : [],
+      ...draft,
+      services: preselected && serviceNames.includes(preselected) ? [preselected] : (draft?.services ?? []),
+      pack: preselected ? "" : (draft?.pack ?? ""),
     });
   }, [open, initialService]);
+
+  /* Черновик пишем на каждое изменение — человек может закрыть окно, чтобы
+     посмотреть модель машины, и вернуться к заполненной форме. */
+  useEffect(() => {
+    if (!open || sent) return;
+    writeDraft(form);
+  }, [open, sent, form]);
 
   /* keep the sheet inside the visible viewport when the keyboard opens */
   useEffect(() => {
@@ -513,6 +581,28 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
     };
   }, [open, onClose]);
 
+  /* Свободные слоты выбранного дня. Считаем от текущего момента, поэтому
+     «через час» на сегодня уже не предложим — машину нужно успеть принять.
+     Оба useMemo обязаны стоять ДО `if (!open) return null`: хук после раннего
+     return вызывается не на каждом рендере, и React падает с ошибкой #310
+     («Rendered more hooks than during the previous render»). */
+  const availableSlots = useMemo(() => (form.date ? slotList(form.date, new Date()) : []), [form.date]);
+
+  /* Ближайшие дни, на которые слоты вообще есть: в 23:00 предлагать «сегодня»
+     бессмысленно, сетка уже закрыта — показываем «завтра» и следующий день. */
+  const quickDays = useMemo(() => {
+    const now = new Date();
+    const days: { iso: string; label: string }[] = [];
+    for (let offset = 0; days.length < 2 && offset < 14; offset++) {
+      const iso = localDate(addDays(now, offset));
+      if (slotList(iso, now).length === 0) continue;
+      const label =
+        offset === 0 ? `Сегодня, ${shortDate(iso)}` : offset === 1 ? `Завтра, ${shortDate(iso)}` : shortDate(iso);
+      days.push({ iso, label });
+    }
+    return days;
+  }, []);
+
   if (!open) return null;
 
   const set = <K extends keyof BookingForm>(key: K, value: BookingForm[K]) => {
@@ -530,15 +620,134 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
     }
     if (target >= 2) {
       if (!form.name.trim()) next.name = "Как к вам обращаться?";
-      const digits = form.phone.replace(/\D/g, "");
-      if (digits.length < 10) next.phone = "Введите номер телефона полностью";
+      if (phoneDigits(form.phone).length < 11) next.phone = "Введите номер телефона полностью";
     }
     if (target >= 3) {
       if (!form.date) next.date = "Выберите дату";
+      else if (form.date < today) next.date = "Эта дата уже прошла";
+      else if (slotList(form.date, new Date()).length === 0) next.date = "На этот день записи уже нет — выберите другую дату";
       if (!form.time) next.time = "Выберите время";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
+  };
+
+  /* ------------------------------------------------------------------ даты */
+
+  /* При выборе даты сразу подставляем первый свободный слот и сбрасываем
+     время, которого в новом дне нет, — иначе в заявку уйдёт невозможная
+     комбинация, а клиент узнает об этом только от администратора. */
+  const pickDate = (iso: string) => {
+    const slots = iso ? slotList(iso, new Date()) : [];
+    setForm((prev) => ({ ...prev, date: iso, time: slots.includes(prev.time) ? prev.time : slots[0] ?? "" }));
+    setErrors((prev) => ({ ...prev, date: "", time: "" }));
+  };
+
+  /* ------------------------------------------------------------ отправка */
+
+  /** Текст заявки. Ровно эта строка уходит и в WhatsApp, и в вебхук. */
+  const buildRequest = () => {
+    const car = [form.make, form.model, form.year].filter(Boolean).join(" ");
+    /* Источник заявки: метки из ссылки, иначе откуда пришёл человек. */
+    const params = new URLSearchParams(window.location.search);
+    const utm = ["utm_source", "utm_medium", "utm_campaign", "utm_content"]
+      .map((key) => params.get(key))
+      .filter(Boolean)
+      .join(" / ");
+    return [
+      `Заявка с сайта ${site.brand.full}`,
+      "",
+      form.pack ? `Пакет: ${form.pack} — ${packOptions.find((p) => p.name === form.pack)?.title ?? ""}` : "Пакет: без пакета",
+      `Услуги: ${form.services.length ? form.services.join(", ") : "—"}`,
+      `Автомобиль: ${car || "не указан"}`,
+      `Имя: ${form.name}`,
+      `Телефон: ${form.phone}`,
+      `Удобная связь: ${channelLabel(form.channel)}`,
+      `Желаемые дата и время: ${humanDate(form.date)}, ${form.time}`,
+      form.comment ? `Комментарий: ${form.comment}` : "",
+      "",
+      `Источник: ${utm || document.referrer || "прямой заход"}`,
+    ]
+      .filter((line) => line !== "")
+      .join("\n");
+  };
+
+  const whatsappUrl = (text: string) =>
+    `https://wa.me/${site.location.phone.href.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
+
+  /** POST заявки на вебхук из конфига; пустая строка — канал выключен. */
+  const postRequest = async (text: string) => {
+    const url = site.booking.automation.webhook;
+    if (!url) return false;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          name: form.name,
+          phone: form.phone,
+          channel: form.channel,
+          pack: form.pack,
+          services: form.services,
+          car: [form.make, form.model, form.year].filter(Boolean).join(" "),
+          date: form.date,
+          time: form.time,
+          comment: form.comment,
+          page: window.location.href,
+        }),
+        keepalive: true,
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const submit = async () => {
+    /* Защита от двойного клика: ссылку браузер открывает сам, повторный клик
+       не должен отправить вторую заявку. */
+    if (sending) return;
+    const text = buildRequest();
+    setRequest(text);
+    setSendError("");
+    setSending(true);
+
+    /* WhatsApp открывает сама кнопка-ссылка в подвале окна: настоящий клик по
+       <a target="_blank"> браузер всплывающим окном не считает, а window.open
+       после await он бы заблокировал. Здесь остаётся вебхук и экран успеха. */
+    const posted = await postRequest(text);
+    setSending(false);
+
+    /* Не ушло никуда — не показываем успех, а просим позвонить. */
+    if (!site.booking.automation.whatsapp && !posted) {
+      setSendError(`Не удалось отправить заявку. Позвоните нам: ${site.location.phone.display}`);
+      return;
+    }
+
+    clearDraft();
+    setSent(true);
+    bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  /* Файл календаря: клиент забирает визит себе, студия получает меньше
+     «а во сколько меня ждать?». */
+  const saveToCalendar = () => {
+    const what = form.services.length ? form.services.join(", ") : form.pack || "визит";
+    downloadIcs(
+      `qarapayim-detailing-${form.date}.ics`,
+      buildIcs(form.date, form.time, `${site.brand.full} — ${what}`, request),
+    );
+  };
+
+  const copyRequest = async () => {
+    try {
+      await navigator.clipboard.writeText(request);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2500);
+    } catch {
+      setCopied(false);
+    }
   };
 
   const goNext = () => {
@@ -547,13 +756,7 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
       return;
     }
     if (step === STEPS.length - 1) {
-      // Demo submit: there is no backend yet, so hold the loader briefly and
-      // then show the success state. Swap this for a real request when there is.
-      setSending(true);
-      window.setTimeout(() => {
-        setSending(false);
-        setSent(true);
-      }, 900);
+      void submit();
       return;
     }
     setStep((s) => Math.min(STEPS.length - 1, s + 1));
@@ -576,6 +779,10 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
   };
 
   const stepTitles = site.booking.stepTitles;
+  const isLastStep = step === STEPS.length - 1;
+  /* Ссылка для кнопки-ссылки на последнем шаге: собираем сразу с готовым
+     текстом заявки, чтобы клик открыл чат студии уже заполненным. */
+  const requestUrl = isLastStep ? whatsappUrl(buildRequest()) : "";
 
   return (
     <div
@@ -821,7 +1028,7 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
                       <input
                         id={fieldId("phone")}
                         value={form.phone}
-                        onChange={(e) => set("phone", e.target.value)}
+                        onChange={(e) => set("phone", formatPhone(e.target.value))}
                         onFocus={onFieldFocus}
                         placeholder="+7 (___) ___-__-__"
                         type="tel"
@@ -856,46 +1063,82 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
 
               {step === 3 ? (
                 <>
-                  <div className="input-grid input-grid--pair">
-                    <label className={`field ${errors.date ? "field--invalid" : ""}`}>
-                      <span>Дата</span>
-                      <input
-                        id={fieldId("date")}
-                        value={form.date}
-                        min={today}
-                        onChange={(e) => set("date", e.target.value)}
-                        onFocus={onFieldFocus}
-                        type="date"
-                        enterKeyHint="next"
-                        aria-invalid={errors.date ? true : undefined}
-                        aria-describedby={errors.date ? `${fieldId("date")}-error` : undefined}
-                      />
-                      {errors.date ? (
-                        <span className="field-error" id={`${fieldId("date")}-error`}>
-                          {errors.date}
-                        </span>
-                      ) : null}
-                    </label>
-                    <label className={`field ${errors.time ? "field--invalid" : ""}`}>
-                      <span>Время</span>
-                      <input
-                        id={fieldId("time")}
-                        value={form.time}
-                        onChange={(e) => set("time", e.target.value)}
-                        onFocus={onFieldFocus}
-                        type="time"
-                        step={1800}
-                        enterKeyHint="done"
-                        aria-invalid={errors.time ? true : undefined}
-                        aria-describedby={errors.time ? `${fieldId("time")}-error` : undefined}
-                      />
-                      {errors.time ? (
-                        <span className="field-error" id={`${fieldId("time")}-error`}>
-                          {errors.time}
-                        </span>
-                      ) : null}
-                    </label>
+                  <p className="form-lead">
+                    Принимаем ежедневно с {String(slotBounds.from).padStart(2, "0")}:00 до{" "}
+                    {String(slotBounds.to).padStart(2, "0")}:00. Выберите день и время — администратор подтвердит его в WhatsApp.
+                  </p>
+
+                  <div className="slot-row" role="group" aria-label="Быстрый выбор даты">
+                    {quickDays.map((day) => (
+                      <button
+                        key={day.iso}
+                        type="button"
+                        className={`slot-chip slot-chip--day ${form.date === day.iso ? "active" : ""}`}
+                        aria-pressed={form.date === day.iso}
+                        onClick={() => pickDate(day.iso)}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
                   </div>
+
+                  <label className={`field ${errors.date ? "field--invalid" : ""}`} style={{ marginTop: 14 }}>
+                    <span>Или выберите дату</span>
+                    <input
+                      id={fieldId("date")}
+                      value={form.date}
+                      min={today}
+                      onChange={(e) => pickDate(e.target.value)}
+                      onFocus={onFieldFocus}
+                      type="date"
+                      enterKeyHint="next"
+                      aria-invalid={errors.date ? true : undefined}
+                      aria-describedby={errors.date ? `${fieldId("date")}-error` : undefined}
+                    />
+                    {errors.date ? (
+                      <span className="field-error" id={`${fieldId("date")}-error`}>
+                        {errors.date}
+                      </span>
+                    ) : null}
+                  </label>
+
+                  <div
+                    className="slot-block"
+                    id={fieldId("time")}
+                    tabIndex={-1}
+                    role="group"
+                    aria-label="Свободное время"
+                    aria-describedby={errors.time ? `${fieldId("time")}-error` : undefined}
+                  >
+                    <span className="slot-label">Время</span>
+                    {availableSlots.length ? (
+                      <div className="slot-row">
+                        {availableSlots.map((slot) => (
+                          <button
+                            key={slot}
+                            type="button"
+                            className={`slot-chip ${form.time === slot ? "active" : ""}`}
+                            aria-pressed={form.time === slot}
+                            onClick={() => set("time", slot)}
+                          >
+                            {slot}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="slot-empty">
+                        {form.date
+                          ? "На этот день свободного времени уже нет — выберите другую дату."
+                          : "Сначала выберите дату — покажем свободное время."}
+                      </p>
+                    )}
+                    {errors.time ? (
+                      <span className="field-error" id={`${fieldId("time")}-error`}>
+                        {errors.time}
+                      </span>
+                    ) : null}
+                  </div>
+
                   <label className="field" style={{ marginTop: 14 }}>
                     <span>Комментарий (необязательно)</span>
                     <textarea
@@ -939,7 +1182,7 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
                     <div className="recap-row">
                       <span>Дата и время</span>
                       <b>
-                        {form.date || "—"}
+                        {form.date ? humanDate(form.date) : "—"}
                         {form.time ? `, ${form.time}` : ""}
                       </b>
                     </div>
@@ -962,6 +1205,12 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
               ) : null}
             </div>
 
+            {sendError ? (
+              <p className="form-send-error" role="alert">
+                {sendError}
+              </p>
+            ) : null}
+
             <div className={`modal-foot ${step > 0 ? "modal-foot--split" : ""}`}>
               {step > 0 ? (
                 <button type="button" className="button button--outline" onClick={goBack} aria-label="Вернуться на предыдущий шаг">
@@ -969,18 +1218,43 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
                   Назад
                 </button>
               ) : null}
-              <button type="button" className="button button--accent" onClick={goNext} disabled={sending}>
-                {sending ? (
-                  <>
-                    <DotMatrix label="Отправляем" />
-                  </>
-                ) : (
-                  <>
-                    {step === STEPS.length - 1 ? site.booking.submitLabel : site.booking.continueLabel}
-                    {step === STEPS.length - 1 ? <ArrowUpRight size={16} /> : <ChevronRight size={16} />}
-                  </>
-                )}
-              </button>
+              {isLastStep && site.booking.automation.whatsapp ? (
+                /* Кнопка-ссылка, а не window.open: настоящий клик по
+                   <a target="_blank"> браузер не считает всплывающим окном,
+                   поэтому чат открывается всегда. Навигацию не отменяем — она и
+                   открывает WhatsApp; гасим её только если заявка не прошла
+                   проверку, иначе в чат уйдёт неполный текст. */
+                <a
+                  className="button button--accent"
+                  href={requestUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(event) => {
+                    if (!validate(step)) {
+                      event.preventDefault();
+                      window.requestAnimationFrame(() => summaryRef.current?.focus());
+                      return;
+                    }
+                    void submit();
+                  }}
+                >
+                  <MessageCircle size={16} aria-hidden="true" />
+                  {site.booking.submitLabel}
+                </a>
+              ) : (
+                <button type="button" className="button button--accent" onClick={goNext} disabled={sending}>
+                  {sending ? (
+                    <>
+                      <DotMatrix label="Отправляем" />
+                    </>
+                  ) : (
+                    <>
+                      {isLastStep ? site.booking.submitLabel : site.booking.continueLabel}
+                      {isLastStep ? <ArrowUpRight size={16} /> : <ChevronRight size={16} />}
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </>
         ) : (
@@ -992,7 +1266,31 @@ function BookingSheet({ open, onClose, initialService }: { open: boolean; onClos
             <h2>
               <RichText text={site.booking.successTitle} />
             </h2>
+            {form.date ? (
+              <p className="success-when">
+                <CalendarDays size={16} aria-hidden="true" />
+                <span>
+                  {humanDate(form.date)}
+                  {form.time ? `, ${form.time}` : ""} · {site.location.address}
+                </span>
+              </p>
+            ) : null}
             <p>{site.booking.successText.replace("{phone}", form.phone).replace("{channel}", channelShort(form.channel))}</p>
+            <div className="success-actions">
+              <a className="button button--accent" href={whatsappUrl(request)} target="_blank" rel="noreferrer">
+                <MessageCircle size={16} aria-hidden="true" />
+                Открыть WhatsApp
+              </a>
+              {form.date && form.time ? (
+                <button type="button" className="button button--outline" onClick={saveToCalendar}>
+                  <CalendarDays size={16} aria-hidden="true" />
+                  В календарь
+                </button>
+              ) : null}
+            </div>
+            <button type="button" className="button-link" onClick={copyRequest}>
+              {copied ? "Текст заявки скопирован" : "Скопировать текст заявки"}
+            </button>
             <button type="button" className="button button--outline" onClick={onClose}>
               Закрыть
             </button>
@@ -1020,6 +1318,15 @@ export default function Home() {
     setMenuOpen(false);
     setBookingOpen(true);
   }, []);
+
+  /* Прямая ссылка на запись: /?booking=Тонировка (или /#booking) открывает
+     форму сразу, с уже выбранной услугой. Такую ссылку студия может бросить
+     клиенту в мессенджер — тому останется заполнить контакты. */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get("booking") ?? params.get("service") ?? "";
+    if (requested || window.location.hash === "#booking") openBooking(requested);
+  }, [openBooking]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);

@@ -1607,6 +1607,123 @@ em {
   text-align: right;
 }
 
+/* --- слоты записи ---------------------------------------------------------
+   Вместо ручного ввода времени — чипы: палец попадает в 44px, заявку нельзя
+   отправить на нерабочий час, а сетку задаёт site.config.ts (booking.slots). */
+.slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-chip {
+  min-height: var(--tap);
+  min-width: 70px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Чипы дня делят строку поровну — подпись у них длиннее, чем «10:00». */
+.slot-chip--day {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.slot-chip.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.slot-block {
+  margin-top: 16px;
+}
+
+/* Поле «Время» — это группа кнопок, а не input: фокус приходит сюда только
+   из сводки ошибок, рамка вокруг всего блока тут лишняя. */
+.slot-block:focus {
+  outline: none;
+}
+
+.slot-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.slot-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.form-send-error {
+  margin: 0;
+  padding: 12px var(--gutter);
+  background: #fdecea;
+  color: #8c1d18;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.success-when {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 0 0;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  background: rgba(17, 17, 15, 0.04);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.success-when svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Кнопки-ссылки: у <a> подчёркивание браузера поверх кнопочного стиля лишнее. */
+.success-actions .button {
+  flex: 1 1 auto;
+  text-decoration: none;
+}
+
+/* Отправка заявки — ссылка в WhatsApp, поэтому это <a>, а не <button>. */
+.modal-foot .button {
+  text-decoration: none;
+}
+
+.button-link {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .success-state {
   display: grid;
   justify-items: center;
