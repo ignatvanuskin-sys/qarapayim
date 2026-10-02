@@ -7,8 +7,13 @@
 ## Текущий клиент: Qarapayim Detailing (Астана)
 
 - Сайт: https://qarapayim-detailing.vercel.app
-- Репозиторий: https://github.com/ignatvanuskin-sys/qarapayim-detailing
+- Репозиторий: https://github.com/ignatvanuskin-sys/qarapayim
 - Vercel: проект `qarapayim-detailing` в команде `bbc-b318`
+
+Git настроен на два remote: `origin` — репозиторий `qarapayim` (основной, туда
+уходит обычный `git push`), `detailing` — прежний `qarapayim-detailing`, оставлен
+для истории. Vercel пока слушает прежний репозиторий: чтобы автосборка шла с
+нового, подключение проекта нужно переключить (`vercel git connect`).
 
 Данные собраны из открытых источников, ничего не выдумано:
 
